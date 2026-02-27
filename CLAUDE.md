@@ -20,7 +20,7 @@ Open-source, self-hosted PineScript code generator. Chat + code editor with real
 - Code extraction happens DURING streaming (incremental, not batch)
 
 ## RAG System
-- **Data sources**: PineScript v6 docs (codenamedevan/pinescriptv6) + 275 example scripts (mihakralj/pinescript, MIT)
+- **Data sources**: PineScript v6 reference documentation + 285 community example scripts
 - **Processing**: `npm run build-rag` processes raw data → JSON chunks + BM25 index
 - **Search**: BM25 scoring with function-mention boosting. Returns max 3 docs + 5 refs + 2 examples (~3-4K tokens)
 - **Integration**: RAG context injected into system prompt before each generation
