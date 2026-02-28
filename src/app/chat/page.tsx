@@ -73,7 +73,13 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    checkSettings();
+    const timeoutId = window.setTimeout(() => {
+      checkSettings();
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [checkSettings]);
 
   // Loading

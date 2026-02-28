@@ -24,15 +24,21 @@ export default function SettingsPage() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(stored) });
-      } catch {
-        // ignore
+    const timeoutId = window.setTimeout(() => {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(stored) });
+        } catch {
+          // ignore
+        }
       }
-    }
-    setLoaded(true);
+      setLoaded(true);
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, []);
 
   function update<K extends keyof Settings>(key: K, value: Settings[K]) {

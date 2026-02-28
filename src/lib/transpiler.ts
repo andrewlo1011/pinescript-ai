@@ -1,9 +1,33 @@
 import type { ValidationResult } from "./types";
 
+function runtimeRequire(moduleName: string): unknown {
+  const req = (0, eval)("require") as (id: string) => unknown;
+  return req(moduleName);
+}
+
 export function transpileValidate(code: string): ValidationResult[] {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { transpile } = require("@opusaether/pine-transpiler");
+    let transpile: ((source: string) => unknown) | undefined;
+    const candidates = ["@opusaether/pine-transpiler", "pine-transpiler"];
+
+    for (const moduleName of candidates) {
+      try {
+        const maybeModule = runtimeRequire(moduleName) as {
+          transpile?: (source: string) => unknown;
+        };
+        if (typeof maybeModule?.transpile === "function") {
+          transpile = maybeModule.transpile;
+          break;
+        }
+      } catch {
+        // Try next candidate package name
+      }
+    }
+
+    if (!transpile) {
+      return [];
+    }
+
     const result = transpile(code);
 
     if (typeof result === "string" && result.length > 0) {
