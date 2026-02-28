@@ -1,4 +1,4 @@
-export type Provider = "anthropic" | "openai" | "google" | "ollama";
+export type Provider = "anthropic" | "openai" | "google" | "openrouter" | "ollama";
 
 export type PineVersion = "v5" | "v6";
 
@@ -61,6 +61,7 @@ export const PROVIDER_MODELS: Record<Provider, string[]> = {
   anthropic: ["claude-sonnet-4-6", "claude-opus-4-6"],
   openai: ["gpt-4.1", "gpt-4.1-mini", "o3"],
   google: ["gemini-2.5-pro", "gemini-2.5-flash"],
+  openrouter: ["anthropic/claude-sonnet-4", "openai/gpt-4.1-mini", "google/gemini-2.5-pro"],
   ollama: [],
 };
 

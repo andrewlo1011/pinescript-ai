@@ -35,6 +35,19 @@ Only report real problems — do not nitpick style.`;
 const FIX_PROMPT = `You are a PineScript v6 expert. Fix ALL the reported issues in this code.
 Return ONLY the corrected PineScript code inside a \`\`\`pinescript code block. No explanation.`;
 
+function getOpenRouterHeaders() {
+  const siteUrl =
+    process.env.OPENROUTER_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "http://localhost:3000";
+  const appName = process.env.OPENROUTER_APP_NAME || "PineScript AI";
+
+  return {
+    "HTTP-Referer": siteUrl,
+    "X-Title": appName,
+  };
+}
+
 async function callLLM(
   prompt: string,
   userContent: string,
@@ -58,6 +71,8 @@ async function callLLM(
   const baseURL =
     provider === "google"
       ? "https://generativelanguage.googleapis.com/v1beta/openai/"
+      : provider === "openrouter"
+        ? "https://openrouter.ai/api/v1"
       : provider === "ollama"
         ? `${ollamaUrl || "http://localhost:11434"}/v1`
         : undefined;
@@ -65,6 +80,7 @@ async function callLLM(
   const client = new OpenAI({
     apiKey: apiKey || "ollama",
     ...(baseURL && { baseURL }),
+    ...(provider === "openrouter" && { defaultHeaders: getOpenRouterHeaders() }),
   });
 
   const response = await client.chat.completions.create({

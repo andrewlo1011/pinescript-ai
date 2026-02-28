@@ -8,7 +8,7 @@ import { reviewCode, fixCode } from "@/lib/ai/reviewer";
 interface ChatRequestBody {
   messages: { role: "user" | "assistant"; content: string }[];
   settings: {
-    provider: "anthropic" | "openai" | "google" | "ollama";
+    provider: "anthropic" | "openai" | "google" | "openrouter" | "ollama";
     apiKey: string;
     model: string;
     ollamaUrl?: string;
@@ -17,6 +17,20 @@ interface ChatRequestBody {
   pineVersion?: "v5" | "v6";
   currentCode?: string;
   test?: boolean;
+}
+
+function getOpenRouterHeaders(origin?: string) {
+  const siteUrl =
+    process.env.OPENROUTER_SITE_URL ||
+    origin ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "http://localhost:3000";
+  const appName = process.env.OPENROUTER_APP_NAME || "PineScript AI";
+
+  return {
+    "HTTP-Referer": siteUrl,
+    "X-Title": appName,
+  };
 }
 
 function buildSystemPrompt(pineVersion: string, currentCode?: string, ragContext?: string): string {
@@ -127,11 +141,13 @@ async function streamOpenAI(
   apiKey: string,
   model: string,
   baseURL: string | undefined,
+  defaultHeaders: Record<string, string> | undefined,
   signal: AbortSignal,
 ) {
   const client = new OpenAI({
     apiKey: apiKey || "ollama",
     ...(baseURL && { baseURL }),
+    ...(defaultHeaders && { defaultHeaders }),
   });
 
   const stream = await client.chat.completions.create(
@@ -164,6 +180,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { provider, apiKey, model, ollamaUrl } = settings;
+  const origin = req.headers.get("origin") || req.nextUrl.origin;
 
   if (provider !== "ollama" && !apiKey) {
     return Response.json({ error: "API key is required" }, { status: 401 });
@@ -194,6 +211,17 @@ export async function POST(req: NextRequest) {
         const client = new OpenAI({
           apiKey,
           baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
+        });
+        await client.chat.completions.create({
+          model,
+          max_tokens: 10,
+          messages: [{ role: "user", content: "Hi" }],
+        });
+      } else if (provider === "openrouter") {
+        const client = new OpenAI({
+          apiKey,
+          baseURL: "https://openrouter.ai/api/v1",
+          defaultHeaders: getOpenRouterHeaders(origin),
         });
         await client.chat.completions.create({
           model,
@@ -250,10 +278,24 @@ export async function POST(req: NextRequest) {
           const baseURL =
             provider === "google"
               ? "https://generativelanguage.googleapis.com/v1beta/openai/"
+              : provider === "openrouter"
+                ? "https://openrouter.ai/api/v1"
               : provider === "ollama"
                 ? `${ollamaUrl || "http://localhost:11434"}/v1`
                 : undefined;
-          const openaiStream = await streamOpenAI(messages, systemPrompt, apiKey, model, baseURL, signal);
+          const defaultHeaders =
+            provider === "openrouter"
+              ? getOpenRouterHeaders(origin)
+              : undefined;
+          const openaiStream = await streamOpenAI(
+            messages,
+            systemPrompt,
+            apiKey,
+            model,
+            baseURL,
+            defaultHeaders,
+            signal,
+          );
 
           for await (const chunk of openaiStream) {
             const text = chunk.choices[0]?.delta?.content;

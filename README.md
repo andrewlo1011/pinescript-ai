@@ -6,7 +6,7 @@ Self-hosted PineScript code generator with RAG-powered generation, multi-provide
 
 ## Features
 
-- **Multi-provider** — Anthropic (Claude), OpenAI (GPT-4.1, o3), Google (Gemini), or Ollama for local models
+- **Multi-provider** — Anthropic (Claude), OpenAI (GPT-4.1, o3), Google (Gemini), OpenRouter, or Ollama for local models
 - **RAG-powered generation** — BM25 search over PineScript v6 docs and 285 example scripts, injected into every prompt
 - **3-layer validation** — Static regex rules, optional AST transpiler check, AI code review with auto-correction
 - **Live code editor** — CodeMirror 6 with PineScript syntax highlighting, inline validation results
@@ -23,6 +23,21 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000), pick your provider, paste your API key, and start generating.
+
+## Environment (Optional)
+
+If you use OpenRouter, you can set these variables to control request attribution headers:
+
+```bash
+# .env.local
+OPENROUTER_SITE_URL=https://your-app-domain.com
+OPENROUTER_APP_NAME=PineScript AI
+```
+
+- `OPENROUTER_SITE_URL` sets the `HTTP-Referer` header
+- `OPENROUTER_APP_NAME` sets the `X-Title` header
+
+If omitted, the app falls back to request origin / `NEXT_PUBLIC_APP_URL` and `PineScript AI`.
 
 ## Customize Your Knowledge Base
 
@@ -141,7 +156,7 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 - [Next.js 16](https://nextjs.org) — App Router, TypeScript strict mode
 - [Tailwind CSS v4](https://tailwindcss.com) — Styling (no component library)
 - [CodeMirror 6](https://codemirror.net) — Code editor with custom PineScript mode
-- [Anthropic SDK](https://docs.anthropic.com) / [OpenAI SDK](https://platform.openai.com/docs) — LLM providers (Google Gemini uses OpenAI-compatible API)
+- [Anthropic SDK](https://docs.anthropic.com) / [OpenAI SDK](https://platform.openai.com/docs) — LLM providers (Google Gemini and OpenRouter use OpenAI-compatible APIs)
 - BM25 — Full-text search for RAG (zero external dependencies)
 
 ## Project Structure

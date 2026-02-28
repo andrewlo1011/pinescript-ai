@@ -56,7 +56,7 @@ export default function OnboardingGate({ onComplete }: OnboardingGateProps) {
             Provider
           </label>
           <div className="flex gap-2">
-            {(["anthropic", "openai", "google", "ollama"] as Provider[]).map((p) => (
+            {(["anthropic", "openai", "google", "openrouter", "ollama"] as Provider[]).map((p) => (
               <button
                 key={p}
                 onClick={() => selectProvider(p)}
@@ -66,7 +66,15 @@ export default function OnboardingGate({ onComplete }: OnboardingGateProps) {
                     : "border-border bg-surface text-text-dim hover:border-border-subtle hover:text-text-secondary"
                 }`}
               >
-                {p === "anthropic" ? "Anthropic" : p === "openai" ? "OpenAI" : p === "google" ? "Google" : "Ollama"}
+                {p === "anthropic"
+                  ? "Anthropic"
+                  : p === "openai"
+                    ? "OpenAI"
+                    : p === "google"
+                      ? "Google"
+                      : p === "openrouter"
+                        ? "OpenRouter"
+                        : "Ollama"}
               </button>
             ))}
           </div>
@@ -91,7 +99,15 @@ export default function OnboardingGate({ onComplete }: OnboardingGateProps) {
                 type={showKey ? "text" : "password"}
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder={provider === "anthropic" ? "sk-ant-..." : provider === "google" ? "AIza..." : "sk-..."}
+                placeholder={
+                  provider === "anthropic"
+                    ? "sk-ant-..."
+                    : provider === "google"
+                      ? "AIza..."
+                      : provider === "openrouter"
+                        ? "sk-or-v1-..."
+                        : "sk-..."
+                }
                 className="w-full px-3 py-2.5 pr-10 bg-surface border border-border rounded-lg text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-border-subtle transition-colors font-mono"
               />
               <button

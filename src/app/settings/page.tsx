@@ -110,7 +110,7 @@ export default function SettingsPage() {
               AI Provider
             </label>
             <div className="flex gap-2">
-              {(["anthropic", "openai", "google", "ollama"] as Provider[]).map((p) => (
+              {(["anthropic", "openai", "google", "openrouter", "ollama"] as Provider[]).map((p) => (
                 <button
                   key={p}
                   onClick={() => update("provider", p)}
@@ -126,7 +126,9 @@ export default function SettingsPage() {
                       ? "OpenAI"
                       : p === "google"
                         ? "Google"
-                        : "Ollama"}
+                        : p === "openrouter"
+                          ? "OpenRouter"
+                          : "Ollama"}
                 </button>
               ))}
             </div>
@@ -156,6 +158,8 @@ export default function SettingsPage() {
                       ? "sk-ant-..."
                       : settings.provider === "google"
                         ? "AIza..."
+                        : settings.provider === "openrouter"
+                          ? "sk-or-v1-..."
                         : "sk-..."
                   }
                   className="w-full px-3 py-2.5 pr-10 bg-surface border border-border rounded-lg text-sm text-text placeholder:text-text-muted focus:outline-none focus:border-border-subtle transition-colors font-mono"
